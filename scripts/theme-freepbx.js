@@ -123,7 +123,7 @@
     // dashed border edges
     drawDashedLine(ctx, 0, row(8) + 2, W, row(8) + 2, "#3a5e3a", 2, [12, 8]);
     drawDashedLine(ctx, 0, row(9) - 2, W, row(9) - 2, "#3a5e3a", 2, [12, 8]);
-    drawTag(ctx, "DMZ", 14, row(8) + 6, "#bce8a6", PALETTE.void);
+    drawTag(ctx, "Responsive Firewall", 14, row(8) + 6, "#bce8a6", PALETTE.void);
 
     // -- Rows 9-13: SIP trunk lanes (road, 5 rows) --
     ctx.fillStyle = PALETTE.asphalt;
