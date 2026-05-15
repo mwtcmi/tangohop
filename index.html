@@ -120,12 +120,16 @@
     }
     #canvas { z-index: 2; background: transparent; }
     #background-canvas { z-index: 1; }
+    #score-panel { width: 480px; margin: 12px auto 0; }
     #score {
-      margin-top: 12px;
-      font: 600 13px/1 ui-monospace, Menlo, monospace;
-      letter-spacing: 1px;
+      font: 700 12px/1.4 ui-monospace, Menlo, monospace;
+      letter-spacing: 1.5px;
       color: var(--freepbx);
       text-align: center;
+      padding: 8px 12px;
+      background: rgba(128,195,67,0.08);
+      border: 1px solid rgba(128,195,67,0.3);
+      border-radius: 4px;
     }
     footer.brand {
       text-align: center;
@@ -166,6 +170,7 @@
         <canvas id="background-canvas" width="960" height="1280"></canvas>
         <canvas id="canvas" width="960" height="1280"></canvas>
       </div>
+      <div id="score-panel"></div>
     </div>
 
     <aside class="side right">
@@ -183,6 +188,15 @@
     Built on <em>denodell/frogger</em> &nbsp;·&nbsp; <span class="sangoma">© Sangoma</span> · FreePBX is a registered trademark of Sangoma Technologies
   </footer>
 
+  <script>
+    // Leaderboard server config. Fill these in after the server hands over
+    // its URL + HMAC secret. Leave SECRET empty to disable submission and
+    // run in local-only mode (HUD still tracks score via localStorage).
+    window.TANGOHOP_CONFIG = {
+      API_URL: "",      // e.g. "https://tangohop.freepbxapps.com"
+      SECRET:  ""       // 32-byte hex from the server's /etc/tangohop/env
+    };
+  </script>
   <script>
     // Load game scripts only after the Arcade Classic font is ready,
     // otherwise canvas fillText falls back to a font that overflows the board.
