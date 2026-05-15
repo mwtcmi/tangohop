@@ -1,0 +1,24 @@
+{
+	email admin@freepbxapps.com
+}
+
+frogman.freepbxapps.com {
+	encode gzip
+
+	@backend path /api/* /leaderboard /health
+	handle @backend {
+		reverse_proxy 127.0.0.1:3000
+	}
+
+	handle {
+		root * /var/www/frogman
+		file_server
+	}
+
+	log {
+		output file /var/log/caddy/frogman.log {
+			roll_size 10mb
+			roll_keep 5
+		}
+	}
+}

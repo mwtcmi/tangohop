@@ -1,0 +1,24 @@
+[Unit]
+Description=Frogman leaderboard API
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=frogman
+Group=frogman
+WorkingDirectory=/opt/frogman/api
+EnvironmentFile=/etc/frogman/env
+ExecStart=/usr/bin/node /opt/frogman/api/server.js
+StandardOutput=journal
+StandardError=journal
+Restart=on-failure
+RestartSec=2
+NoNewPrivileges=yes
+ProtectSystem=strict
+ReadWritePaths=/var/lib/frogman
+ProtectHome=yes
+PrivateTmp=yes
+
+[Install]
+WantedBy=multi-user.target
