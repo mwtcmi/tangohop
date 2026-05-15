@@ -180,43 +180,102 @@ const LEADERBOARD_HTML = `<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>TANGO HOP — Leaderboard</title>
 <style>
-:root { --green: #80c343; --bg: #0a0d0a; --fg: #e8f5d4; }
+@font-face {
+  font-family: "Arcade Classic";
+  src: url("https://mwtcmi.github.io/tangohop/fonts/arcadeclassic.woff") format("woff"),
+       url("https://mwtcmi.github.io/tangohop/fonts/arcadeclassic.ttf") format("truetype");
+  font-display: block;
+}
+:root {
+  --bg: #0a0f1a;
+  --panel: #11182a;
+  --ink: #e7eefc;
+  --muted: #8aa0c6;
+  --freepbx: #80c343;
+  --sangoma: #e02020;
+  --accent: #00d1ff;
+}
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { background: var(--bg); color: var(--fg); font-family: 'Courier New', monospace; min-height: 100vh; overflow: hidden; }
-body { display: flex; flex-direction: column; padding: 4vh 6vw; }
-.hero { display: flex; align-items: center; justify-content: center; gap: 3vw; margin-bottom: 1.5vh; }
-.hero img.mascot { height: 14vh; width: auto; image-rendering: pixelated; image-rendering: crisp-edges; }
-h1 { font-size: 10vh; color: var(--green); letter-spacing: 0.2em; text-shadow: 0 0 24px rgba(128,195,67,0.6); }
-.sub { color: var(--green); opacity: 0.7; text-align: center; font-size: 2vh; margin-bottom: 5vh; letter-spacing: 0.4em; }
-table { width: 100%; border-collapse: collapse; font-size: 5vh; }
-th, td { padding: 1.2vh 1vw; }
-th { color: var(--green); border-bottom: 2px solid var(--green); text-align: left; font-size: 2.4vh; letter-spacing: 0.3em; text-transform: uppercase; }
-td.rank { width: 10%; color: var(--green); }
-td.name { width: 60%; }
-td.score { width: 30%; text-align: right; }
+html, body { background: var(--bg); color: var(--ink); font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; min-height: 100vh; overflow: hidden; }
+body { display: flex; flex-direction: column; }
+header.brand {
+  display: flex; align-items: center; gap: 16px; padding: 18px 24px;
+  background: linear-gradient(90deg, #0a0f1a 0%, #11182a 60%, #1a2647 100%);
+  border-bottom: 2px solid var(--freepbx);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.5);
+}
+header.brand img.mascot {
+  height: 96px; width: auto;
+  image-rendering: pixelated; image-rendering: crisp-edges;
+}
+header.brand h1 {
+  margin: 0;
+  font: 700 32px/1 "Arcade Classic", system-ui, sans-serif;
+  letter-spacing: 2px; color: var(--ink);
+}
+header.brand h1 .sub {
+  display: block; margin-top: 8px;
+  font: 500 13px/1 system-ui, sans-serif;
+  letter-spacing: 2px; color: var(--muted); text-transform: uppercase;
+}
+header.brand .spacer { flex: 1; }
+header.brand a.cta {
+  font: 700 14px/1 "Arcade Classic", system-ui, sans-serif;
+  letter-spacing: 2px; text-transform: uppercase;
+  padding: 10px 16px; border-radius: 4px;
+  text-decoration: none; margin-left: 10px;
+  transition: background 0.15s, color 0.15s;
+}
+header.brand a.cta.play { color: var(--freepbx); border: 2px solid var(--freepbx); }
+header.brand a.cta.play:hover { background: var(--freepbx); color: #0a2010; }
+header.brand a.cta.merch { color: #0a2010; background: var(--sangoma); border: 2px solid var(--sangoma); }
+header.brand a.cta.merch:hover { background: #b51717; border-color: #b51717; color: #fff; }
+main { flex: 1; display: flex; flex-direction: column; padding: 4vh 6vw 2vh; }
+.live { display: flex; align-items: center; justify-content: center; gap: 12px;
+  margin-bottom: 3vh;
+  color: var(--freepbx); font: 700 2vh/1 "Arcade Classic", ui-monospace, monospace;
+  letter-spacing: 0.4em; }
+.dot { display: inline-block; width: 1.2vh; height: 1.2vh; border-radius: 50%;
+  background: var(--freepbx); box-shadow: 0 0 12px var(--freepbx);
+  animation: pulse 1.5s infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+table { width: 100%; border-collapse: collapse; font-size: 5vh; font-family: ui-monospace, Menlo, monospace; }
+th, td { padding: 1.2vh 1.2vw; }
+th { color: var(--accent); border-bottom: 2px solid var(--freepbx);
+  text-align: left; font: 600 1.8vh/1 system-ui, sans-serif;
+  letter-spacing: 0.3em; text-transform: uppercase; }
+td.rank { width: 10%; color: var(--freepbx); }
+td.name { width: 60%; color: var(--ink); }
+td.score { width: 30%; text-align: right; color: var(--ink); }
 tbody tr { border-bottom: 1px solid rgba(128,195,67,0.18); }
 tbody tr.flash { animation: flash 1.8s ease-out; }
-@keyframes flash { 0% { background: rgba(128,195,67,0.45); } 100% { background: transparent; } }
-.empty { text-align: center; padding: 8vh 0; opacity: 0.4; font-size: 3vh; }
-.foot { margin-top: auto; display: flex; justify-content: space-between; align-items: center; font-size: 1.8vh; letter-spacing: 0.3em; opacity: 0.6; padding-top: 2vh; }
-.foot a.merch { color: #e02020; text-decoration: none; font-weight: 700; padding: 0.8vh 1.2vw; border: 2px solid #e02020; border-radius: 4px; letter-spacing: 0.2em; opacity: 1; }
-.foot a.merch:hover { background: #e02020; color: #0a0d0a; }
-.dot { display: inline-block; width: 0.8vh; height: 0.8vh; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px var(--green); margin-right: 0.6vw; vertical-align: middle; animation: pulse 1.5s infinite; }
-@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+@keyframes flash { 0% { background: rgba(128,195,67,0.35); } 100% { background: transparent; } }
+.empty { text-align: center; padding: 8vh 0; opacity: 0.4; font-size: 3vh; color: var(--muted); }
+footer.brand { padding: 14px 24px; border-top: 1px solid #1a2342;
+  text-align: center; font: 500 11px/1.4 system-ui, sans-serif;
+  color: var(--muted); letter-spacing: 1px; }
+footer.brand .sangoma { color: var(--sangoma); font-weight: 700; }
 </style></head><body>
-<div class="hero">
+<header class="brand">
   <img class="mascot" src="https://mwtcmi.github.io/tangohop/images/freepbx/tango8bit.png" alt="Tango — freePBX">
-  <h1>TANGO HOP</h1>
-</div>
-<div class="sub"><span class="dot"></span>TOP 10 // LIVE</div>
-<table>
-<thead><tr><th>#</th><th>NAME</th><th style="text-align:right">SCORE</th></tr></thead>
-<tbody id="rows"><tr><td colspan="3" class="empty">WAITING FOR PLAYERS...</td></tr></tbody>
-</table>
-<div class="foot">
-  <span>FreePBX // Powered by Sangoma</span>
-  <a class="merch" href="https://merch.sangoma.com" target="_blank" rel="noopener">merch.sangoma.com →</a>
-</div>
+  <h1>
+    TANGO HOP
+    <span class="sub">Connect or Croak</span>
+  </h1>
+  <div class="spacer"></div>
+  <a class="cta play" href="https://mwtcmi.github.io/tangohop/" target="_blank" rel="noopener">Play</a>
+  <a class="cta merch" href="https://merch.sangoma.com" target="_blank" rel="noopener">Merch</a>
+</header>
+<main>
+  <div class="live"><span class="dot"></span>TOP 10 // LIVE</div>
+  <table>
+    <thead><tr><th>#</th><th>Name</th><th style="text-align:right">Score</th></tr></thead>
+    <tbody id="rows"><tr><td colspan="3" class="empty">WAITING FOR PLAYERS...</td></tr></tbody>
+  </table>
+</main>
+<footer class="brand">
+  Built on <em>denodell/frogger</em> &nbsp;·&nbsp; <span class="sangoma">© Sangoma</span> · FreePBX is a registered trademark of Sangoma Technologies
+</footer>
 <script>
 const rows = document.getElementById('rows');
 let seen = new Set();
