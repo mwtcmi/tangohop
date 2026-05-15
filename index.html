@@ -42,65 +42,53 @@
       box-shadow: 0 2px 12px rgba(0,0,0,0.5);
     }
     header.brand img.mascot {
-      width: 56px;
-      height: 56px;
+      height: 96px;
+      width: auto;
       image-rendering: pixelated;
       image-rendering: crisp-edges;
     }
     header.brand h1 {
       margin: 0;
-      font: 700 20px/1 "Arcade Classic", system-ui, sans-serif;
-      letter-spacing: 1.5px;
+      font: 700 28px/1 "Arcade Classic", system-ui, sans-serif;
+      letter-spacing: 2px;
       color: var(--ink);
     }
-    header.brand a.leaderboard-link {
-      font: 700 12px/1 "Arcade Classic", system-ui, sans-serif;
-      letter-spacing: 2px;
-      color: var(--freepbx);
-      text-transform: uppercase;
-      padding: 8px 14px;
-      border: 2px solid var(--freepbx);
-      border-radius: 4px;
-      text-decoration: none;
-      margin-right: 12px;
-      transition: background 0.15s, color 0.15s;
-    }
-    header.brand a.leaderboard-link:hover {
-      background: var(--freepbx);
-      color: #0a2010;
-    }
-    .freepbx-strip {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 14px 16px 0;
-      background: var(--bg);
-    }
-    .freepbx-strip img {
-      height: 36px;
-      width: auto;
-      image-rendering: pixelated;
-      image-rendering: crisp-edges;
-      opacity: 0.95;
-    }
-    header.brand h1 .pbx { color: var(--freepbx); }
     header.brand h1 .sub {
       display: block;
-      margin-top: 4px;
-      font: 500 11px/1 system-ui, sans-serif;
+      margin-top: 6px;
+      font: 500 12px/1 system-ui, sans-serif;
       letter-spacing: 2px;
       color: var(--muted);
       text-transform: uppercase;
     }
     header.brand .spacer { flex: 1; }
-    header.brand .tag {
-      font: 600 11px/1 system-ui, sans-serif;
-      letter-spacing: 1.5px;
-      color: var(--sangoma);
+    header.brand a.cta {
+      font: 700 13px/1 "Arcade Classic", system-ui, sans-serif;
+      letter-spacing: 2px;
       text-transform: uppercase;
-      padding: 6px 10px;
-      border: 1px solid var(--sangoma);
+      padding: 10px 16px;
       border-radius: 4px;
+      text-decoration: none;
+      margin-left: 10px;
+      transition: background 0.15s, color 0.15s;
+    }
+    header.brand a.cta.leaderboard {
+      color: var(--freepbx);
+      border: 2px solid var(--freepbx);
+    }
+    header.brand a.cta.leaderboard:hover {
+      background: var(--freepbx);
+      color: #0a2010;
+    }
+    header.brand a.cta.merch {
+      color: #0a2010;
+      background: var(--sangoma);
+      border: 2px solid var(--sangoma);
+    }
+    header.brand a.cta.merch:hover {
+      background: #b51717;
+      border-color: #b51717;
+      color: #fff;
     }
     main {
       display: grid;
@@ -179,19 +167,15 @@
 </head>
 <body>
   <header class="brand">
-    <img class="mascot" src="images/freepbx/tango-pixel.svg" alt="Tango">
+    <img class="mascot" src="images/freepbx/tango8bit.png" alt="Tango — freePBX">
     <h1>
-      <span class="pbx">FreePBX</span> TANGO HOP
+      TANGO HOP
       <span class="sub">A PBX Crossing</span>
     </h1>
     <div class="spacer"></div>
-    <a class="leaderboard-link" href="https://tangohop.freepbxapps.com/leaderboard" target="_blank" rel="noopener">Leaderboard</a>
-    <div class="tag">Powered by Sangoma</div>
+    <a class="cta leaderboard" href="https://tangohop.freepbxapps.com/leaderboard" target="_blank" rel="noopener">Leaderboard</a>
+    <a class="cta merch" href="https://merch.sangoma.com" target="_blank" rel="noopener">Merch</a>
   </header>
-
-  <div class="freepbx-strip">
-    <img src="images/freepbx/freepbx-pixel.svg" alt="FreePBX">
-  </div>
 
   <main>
     <aside class="side">
