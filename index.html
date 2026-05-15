@@ -1,30 +1,212 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Tango de Frogger</title>
+  <title>Tango Hop — FreePBX Edition</title>
   <base href="./">
   <style>
-    body {
+    @font-face {
+      font-family: "Arcade Classic";
+      src: url("fonts/arcadeclassic.woff") format("woff"),
+           url("fonts/arcadeclassic.ttf") format("truetype"),
+           url("fonts/arcadeclassic.svg#ArcadeClassic") format("svg");
+      font-weight: normal;
+      font-style: normal;
+      font-display: block;
+    }
+    :root {
+      --bg: #0a0f1a;
+      --panel: #11182a;
+      --ink: #e7eefc;
+      --muted: #8aa0c6;
+      --freepbx: #80c343;
+      --sangoma: #e02020;
+      --accent: #00d1ff;
+    }
+    html, body {
       margin: 0;
-      background: #000;
+      padding: 0;
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    }
+    header.brand {
       display: flex;
-      justify-content: center;
       align-items: center;
-      height: 100vh;
+      gap: 12px;
+      padding: 14px 20px;
+      background: linear-gradient(90deg, #0a0f1a 0%, #11182a 60%, #1a2647 100%);
+      border-bottom: 2px solid var(--freepbx);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.5);
     }
-    canvas {
-      border: 2px solid #00ff7f;
+    header.brand img { width: 36px; height: 36px; }
+    header.brand h1 {
+      margin: 0;
+      font: 700 20px/1 "Arcade Classic", system-ui, sans-serif;
+      letter-spacing: 1.5px;
+      color: var(--ink);
     }
+    header.brand h1 .pbx { color: var(--freepbx); }
+    header.brand h1 .sub {
+      display: block;
+      margin-top: 4px;
+      font: 500 11px/1 system-ui, sans-serif;
+      letter-spacing: 2px;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+    header.brand .spacer { flex: 1; }
+    header.brand .tag {
+      font: 600 11px/1 system-ui, sans-serif;
+      letter-spacing: 1.5px;
+      color: var(--sangoma);
+      text-transform: uppercase;
+      padding: 6px 10px;
+      border: 1px solid var(--sangoma);
+      border-radius: 4px;
+    }
+    main {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 24px;
+      padding: 24px;
+      align-items: start;
+    }
+    .side {
+      max-width: 280px;
+      justify-self: end;
+    }
+    .side.right { justify-self: start; }
+    .side h2 {
+      margin: 0 0 8px 0;
+      font: 600 11px/1 system-ui, sans-serif;
+      letter-spacing: 2px;
+      color: var(--accent);
+      text-transform: uppercase;
+    }
+    .side p, .side li {
+      font: 14px/1.4 system-ui, sans-serif;
+      color: var(--muted);
+    }
+    .side ul { padding-left: 18px; margin: 0; }
+    .side .key {
+      display: inline-block;
+      min-width: 18px;
+      padding: 2px 6px;
+      margin-right: 6px;
+      background: var(--panel);
+      border: 1px solid #2a3654;
+      border-radius: 3px;
+      color: var(--ink);
+      font: 600 12px/1 ui-monospace, Menlo, monospace;
+      text-align: center;
+    }
+    #stage {
+      position: relative;
+      width: 480px;
+      height: 640px;
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: 0 0 0 2px var(--freepbx), 0 0 0 6px #0a0f1a, 0 8px 40px rgba(128,195,67,0.15);
+    }
+    #stage canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      image-rendering: pixelated;
+    }
+    #canvas { z-index: 2; background: transparent; }
+    #background-canvas { z-index: 1; }
+    #score {
+      margin-top: 12px;
+      font: 600 13px/1 ui-monospace, Menlo, monospace;
+      letter-spacing: 1px;
+      color: var(--freepbx);
+      text-align: center;
+    }
+    footer.brand {
+      text-align: center;
+      padding: 16px;
+      border-top: 1px solid #1a2342;
+      font: 500 11px/1.4 system-ui, sans-serif;
+      color: var(--muted);
+      letter-spacing: 1px;
+    }
+    footer.brand .sangoma { color: var(--sangoma); font-weight: 700; }
   </style>
 </head>
 <body>
-  <canvas id="game" width="505" height="606"></canvas>
+  <header class="brand">
+    <img id="hud-badge" src="images/freepbx/freepbx-logo-badge.png" alt="FreePBX">
+    <h1>
+      <span class="pbx">FreePBX</span> TANGO HOP
+      <span class="sub">A PBX Crossing</span>
+    </h1>
+    <div class="spacer"></div>
+    <div class="tag">Powered by Sangoma</div>
+  </header>
 
-  <!-- Load scripts in correct order -->
-  <script src="scripts/main.js"></script>
-  <script src="scripts/score.js"></script>
-  <script src="scripts/theme-freepbx.js"></script>
+  <main>
+    <aside class="side">
+      <h2>Mission</h2>
+      <p>Guide <strong style="color:var(--freepbx)">Tango</strong> across congested SIP trunks and ride RTP streams to dock all five FreePBX extensions.</p>
+      <h2 style="margin-top:18px">Hazards</h2>
+      <ul>
+        <li>SIP trunks &amp; rogue endpoints</li>
+        <li>NAT firewalls in motion</li>
+        <li>Dropped RTP packets</li>
+      </ul>
+    </aside>
+
+    <div>
+      <div id="stage">
+        <canvas id="background-canvas" width="960" height="1280"></canvas>
+        <canvas id="canvas" width="960" height="1280"></canvas>
+      </div>
+    </div>
+
+    <aside class="side right">
+      <h2>Controls</h2>
+      <p>
+        <span class="key">↑</span><span class="key">↓</span><span class="key">←</span><span class="key">→</span>
+        move Tango one hop.
+      </p>
+      <h2 style="margin-top:18px">Objective</h2>
+      <p>Reach all 5 FreePBX pads before the call timer expires. Don't drop the call.</p>
+    </aside>
+  </main>
+
+  <footer class="brand">
+    Built on <em>denodell/frogger</em> &nbsp;·&nbsp; <span class="sangoma">© Sangoma</span> · FreePBX is a registered trademark of Sangoma Technologies
+  </footer>
+
+  <script>
+    // Load game scripts only after the Arcade Classic font is ready,
+    // otherwise canvas fillText falls back to a font that overflows the board.
+    (function () {
+      function loadScript(src) {
+        return new Promise(function (resolve, reject) {
+          var s = document.createElement('script');
+          s.src = src;
+          s.onload = resolve;
+          s.onerror = reject;
+          document.body.appendChild(s);
+        });
+      }
+      function boot() {
+        loadScript('scripts/main.js')
+          .then(function () { return loadScript('scripts/score.js'); })
+          .then(function () { return loadScript('scripts/theme-freepbx.js'); });
+      }
+      if (document.fonts && document.fonts.load) {
+        document.fonts.load('67px "Arcade Classic"').then(boot, boot);
+      } else {
+        boot();
+      }
+    })();
+  </script>
 </body>
 </html>

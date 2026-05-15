@@ -1,6 +1,6 @@
 // scripts/score.js
 (() => {
-  const storeKey = 'freepbx-frogger-highscore';
+  const storeKey = 'tangohop-highscore';
   let score = 0, high = +localStorage.getItem(storeKey) || 0;
 
   const el = document.createElement('div');
