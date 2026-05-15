@@ -41,12 +41,47 @@
       border-bottom: 2px solid var(--freepbx);
       box-shadow: 0 2px 12px rgba(0,0,0,0.5);
     }
-    header.brand img { width: 36px; height: 36px; }
+    header.brand img.mascot {
+      width: 56px;
+      height: 56px;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
     header.brand h1 {
       margin: 0;
       font: 700 20px/1 "Arcade Classic", system-ui, sans-serif;
       letter-spacing: 1.5px;
       color: var(--ink);
+    }
+    header.brand a.leaderboard-link {
+      font: 700 12px/1 "Arcade Classic", system-ui, sans-serif;
+      letter-spacing: 2px;
+      color: var(--freepbx);
+      text-transform: uppercase;
+      padding: 8px 14px;
+      border: 2px solid var(--freepbx);
+      border-radius: 4px;
+      text-decoration: none;
+      margin-right: 12px;
+      transition: background 0.15s, color 0.15s;
+    }
+    header.brand a.leaderboard-link:hover {
+      background: var(--freepbx);
+      color: #0a2010;
+    }
+    .freepbx-strip {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 14px 16px 0;
+      background: var(--bg);
+    }
+    .freepbx-strip img {
+      height: 36px;
+      width: auto;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      opacity: 0.95;
     }
     header.brand h1 .pbx { color: var(--freepbx); }
     header.brand h1 .sub {
@@ -144,14 +179,19 @@
 </head>
 <body>
   <header class="brand">
-    <img id="hud-badge" src="images/freepbx/freepbx-logo-badge.png" alt="FreePBX">
+    <img class="mascot" src="images/freepbx/tango-pixel.svg" alt="Tango">
     <h1>
       <span class="pbx">FreePBX</span> TANGO HOP
       <span class="sub">A PBX Crossing</span>
     </h1>
     <div class="spacer"></div>
+    <a class="leaderboard-link" href="https://tangohop.freepbxapps.com/leaderboard" target="_blank" rel="noopener">Leaderboard</a>
     <div class="tag">Powered by Sangoma</div>
   </header>
+
+  <div class="freepbx-strip">
+    <img src="images/freepbx/freepbx-pixel.svg" alt="FreePBX">
+  </div>
 
   <main>
     <aside class="side">
