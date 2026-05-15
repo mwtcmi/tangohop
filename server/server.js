@@ -140,7 +140,7 @@ app.post('/api/score', scoreLimiter, (req, res) => {
   if (typeof name !== 'string' || !NAME_RE.test(name)) return reject('bad_name');
   if (email !== undefined && email !== null && (typeof email !== 'string' || email.length > 120)) return reject('bad_email');
   if (!Number.isInteger(score) || score < 0 || score > 1_000_000) return reject('bad_score');
-  if (!Number.isInteger(durationMs) || durationMs < 1000 || durationMs > 7_200_000) return reject('bad_duration');
+  if (!Number.isInteger(durationMs) || durationMs < 1 || durationMs > 7_200_000) return reject('bad_duration');
   if (typeof nonce !== 'string' || nonce.length < 8 || nonce.length > 64) return reject('bad_nonce');
   if (typeof signature !== 'string' || !HEX64_RE.test(signature)) return reject('bad_signature');
 
