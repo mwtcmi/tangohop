@@ -2,7 +2,7 @@
 	email admin@freepbxapps.com
 }
 
-frogman.freepbxapps.com {
+tangohop.freepbxapps.com {
 	encode gzip
 
 	@backend path /api/* /leaderboard /health
@@ -11,8 +11,7 @@ frogman.freepbxapps.com {
 	}
 
 	handle {
-		root * /var/www/frogman
-		file_server
+		respond 404
 	}
 
 	log {
