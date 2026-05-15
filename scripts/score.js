@@ -13,8 +13,9 @@
   let currentScore = 0;
   let localHighScore = +localStorage.getItem(STORE_KEY) || 0;
   let serverRank = null;
-  let gameStartedAt = Date.now();
+  let gameStartedAt = null;
   let submittedForThisRun = false;
+  const MAX_DURATION_MS = 30 * 60 * 1000;
 
   // ---------- HUD ----------
   const hud = document.createElement("div");
@@ -194,7 +195,8 @@
       return;
     }
 
-    const durationMs = Math.max(1, Date.now() - gameStartedAt);
+    const playStart = gameStartedAt ?? Date.now();
+    const durationMs = Math.min(MAX_DURATION_MS, Math.max(1, Date.now() - playStart));
     const nonce = randomNonce();
     const payload = `${entry.name}|${finalScore}|${durationMs}|${nonce}`;
 
@@ -234,12 +236,13 @@
       return;
     }
     Frogger.observer.subscribe("game-load", () => {
-      gameStartedAt = Date.now();
+      gameStartedAt = null;
       submittedForThisRun = false;
     });
-    Frogger.observer.subscribe("reset", () => {
-      // The engine fires reset after a life is lost too, so don't restart
-      // the timer for the whole-game duration here — only on full game-load.
+    Frogger.observer.subscribe("player-moved", () => {
+      // First move marks the real game start. Page-load is the wrong signal
+      // for the booth display, which sits open for hours between players.
+      if (gameStartedAt === null) gameStartedAt = Date.now();
     });
     Frogger.observer.subscribe("score-change", (newScore) => {
       currentScore = newScore;
