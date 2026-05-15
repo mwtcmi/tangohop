@@ -7,7 +7,7 @@ const crypto = require('crypto');
 const PORT = parseInt(process.env.PORT || '3000', 10);
 const SECRET_HEX = process.env.TANGOHOP_SECRET || process.env.FROGMAN_SECRET;
 const DB_PATH = process.env.TANGOHOP_DB || process.env.FROGMAN_DB || '/var/lib/frogman/scores.db';
-const MS_PER_POINT = 50;
+const MS_PER_POINT = 5;
 
 if (!SECRET_HEX || !/^[0-9a-fA-F]{64}$/.test(SECRET_HEX)) {
   console.error(JSON.stringify({ t: new Date().toISOString(), level: 'fatal', event: 'invalid_secret', msg: 'TANGOHOP_SECRET must be 64 hex chars (32 bytes)' }));

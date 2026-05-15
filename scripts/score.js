@@ -215,8 +215,12 @@
         })
       });
       if (!res.ok) {
-        const txt = await res.text().catch(() => "");
-        throw new Error(`HTTP ${res.status} ${txt}`);
+        const body = await res.json().catch(() => ({}));
+        const reason = (body.error || `http_${res.status}`).toString().toUpperCase();
+        console.warn("Score rejected:", reason, body);
+        renderHud();
+        showResult(`REJECTED: ${reason}`, "#e02020");
+        return;
       }
       const data = await res.json();
       serverRank = data.rank;
