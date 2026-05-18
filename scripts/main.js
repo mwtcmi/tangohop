@@ -2182,25 +2182,24 @@ Frogger.Row = (function() {
 
     // Apply a level multiplier to each row's speed (relative to the captured base) and
     // wipe filled goal pads so the player can refill them on the new level.
+    // NOTE: the goal row is identified by `instanceof Frogger.Row.Goal` rather than by
+    // base speed, because Row's constructor uses `options.speed || 1` which silently
+    // upgrades a passed-in 0 to 1 (0 is falsy). Don't trust _baseSpeeds[i] === 0 here.
     Frogger.observer.subscribe("level-up", function (multiplier) {
-        console.log("[level-up] fired, multiplier =", multiplier, "rows =", _rows.length);
         for (var i = 0, n = _rows.length; i < n; i++) {
             var row = _rows[i],
                 base = _baseSpeeds[i],
                 baseCount = _baseObstacleCounts[i];
-            if (base === 0) {
-                // Goal row: trim back to the original obstacle count (drops any pushed
-                // GoalFrogs) and re-arm isMet on the remaining Goal markers.
-                row.speed = 0;
+            if (row instanceof Frogger.Row.Goal) {
+                // Trim back to the original obstacle count (drops any pushed GoalFrogs)
+                // and re-arm isMet on the remaining Goal markers.
                 if (Array.isArray(row.obstacles)) {
-                    var beforeLen = row.obstacles.length;
                     while (row.obstacles.length > baseCount) {
                         row.obstacles.pop();
                     }
                     for (var k = 0; k < row.obstacles.length; k++) {
                         row.obstacles[k].isMet = false;
                     }
-                    console.log("[level-up] goal row trimmed", beforeLen, "->", row.obstacles.length, "isMet reset");
                 }
             } else {
                 row.speed = Math.max(1, Math.round(base * multiplier));
