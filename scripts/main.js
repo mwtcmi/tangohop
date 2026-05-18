@@ -136,6 +136,12 @@ window.requestAnimationFrame = (function(){
         // to reach the goal for the game to be won
         _maxTimesAtGoal = 5,
 
+        // Current level (1, 2, 3…). Game now keeps going forever — clearing 5 pads
+        // advances the level rather than ending the game. Obstacle speeds scale with
+        // level via the LEVEL_SPEED_STEP multiplier.
+        _level = 1,
+        LEVEL_SPEED_STEP = 0.15,
+
         // Define a Boolean variable to indicate whether the player's movement is currently
         // frozen in place
         _isPlayerFrozen = false,
@@ -182,11 +188,21 @@ window.requestAnimationFrame = (function(){
         Frogger.observer.publish("game-over");
     }
 
-    // Define a function to be called when the player has reached the goal
+    // Kept for backwards-compat with any module that subscribed to "game-won",
+    // but no longer called — clearing 5 pads now advances the level instead.
     function gameWon() {
-
-        // Inform other code modules that the game has been won
         Frogger.observer.publish("game-won");
+    }
+
+    // Advance to the next level. Called after the player clears 5 pads. Resets the
+    // goal pads + player position via the normal reset() path and broadcasts a speed
+    // multiplier so the obstacle rows can scale themselves up.
+    function levelUp() {
+        _level++;
+        _timesAtGoal = 0;
+        Frogger.observer.publish("level-change", _level);
+        Frogger.observer.publish("level-up", 1 + (_level - 1) * LEVEL_SPEED_STEP);
+        reset();
     }
 
     // Define a function to be called when the player loses a life
@@ -281,8 +297,9 @@ window.requestAnimationFrame = (function(){
             setTimeout(reset, 2000);
         } else {
 
-            // If the player has reached the goal 5 times, the game has been won!
-            gameWon();
+            // Cleared all 5 pads — advance to the next level after a brief pause so the
+            // player can see the final pad-fill animation.
+            setTimeout(levelUp, 2000);
         }
     }
 
@@ -372,6 +389,9 @@ window.requestAnimationFrame = (function(){
 
         // Inform other code modules of the initial state of the game's high score
         Frogger.observer.publish("high-score-change", _highScore);
+
+        // Broadcast the initial level so the HUD shows "LV 1" from the start
+        Frogger.observer.publish("level-change", _level);
 
         // Start the game loop running
         gameLoop();
@@ -842,6 +862,7 @@ Frogger.ImageSprite.prototype = {
         // Define variables to store the current game state locally in this module
         _score = 0,
         _highScore = 0,
+        _level = 1,
         _gameWon = false,
         _gameOver = false,
 
@@ -877,6 +898,13 @@ Frogger.ImageSprite.prototype = {
         // beneath the "HI-SCORE" text previously drawn to the <canvas>
         Frogger.drawingSurface.fillStyle = "#F00";
         Frogger.drawingSurface.fillText(_highScore, _gameBoard.columns[8], _gameBoard.grid.height);
+
+        // Write "LEVEL" label and the current level value, positioned between the score
+        // and high-score blocks, matching their two-line label/value layout.
+        Frogger.drawingSurface.fillStyle = "#FFF";
+        Frogger.drawingSurface.fillText("LEVEL", _gameBoard.columns[6], _gameBoard.grid.height / 2);
+        Frogger.drawingSurface.fillStyle = "#FF0";
+        Frogger.drawingSurface.fillText(_level, _gameBoard.columns[6], _gameBoard.grid.height);
     }
 
     // Define a function to render the text "GAME OVER" to the <canvas>. This will only be
@@ -975,6 +1003,11 @@ Frogger.ImageSprite.prototype = {
     // on the next cycle of the game loop
     Frogger.observer.subscribe("high-score-change", function(newHighScore) {
         _highScore = newHighScore;
+    });
+
+    // Track the current level so the HUD can render "LV N" on every frame
+    Frogger.observer.subscribe("level-change", function(newLevel) {
+        _level = newLevel;
     });
 
     // Subscribe to the "game-board-initialize" event fired by the previous code module,
@@ -2008,6 +2041,7 @@ Frogger.Row = (function() {
     // Define variables to store the populated rows on the game board, and the properties
     // and settings of the game board itself
     var _rows = [],
+        _baseSpeeds = [],
         _gameBoard = {};
 
     // Define a function to be called when the game board has initialized onto which we
@@ -2120,11 +2154,33 @@ Frogger.Row = (function() {
             })
         ];
 
+        // Capture base speeds for each row so they can be rescaled per level
+        _baseSpeeds = _rows.map(function (row) { return row.speed; });
+
         // With the rows and obstacles initialized, connect the local render() function to
         // the "render-base-layer" event fired from within the game loop to draw those
         // obstacles onto the game board
         Frogger.observer.subscribe("render-base-layer", render);
     }
+
+    // Apply a level multiplier to each row's speed (relative to the captured base) and
+    // wipe filled goal pads so the player can refill them on the new level.
+    Frogger.observer.subscribe("level-up", function (multiplier) {
+        for (var i = 0, n = _rows.length; i < n; i++) {
+            var row = _rows[i],
+                base = _baseSpeeds[i];
+            if (base === 0) {
+                // Goal row: keep stationary, drop placed GoalFrogs, re-arm the markers
+                row.speed = 0;
+                if (Array.isArray(row.obstacles)) {
+                    row.obstacles = row.obstacles.filter(function (o) { return 'isMet' in o; });
+                    row.obstacles.forEach(function (o) { o.isMet = false; });
+                }
+            } else {
+                row.speed = Math.max(1, Math.round(base * multiplier));
+            }
+        }
+    });
 
     // Define a function to render each of the defined rows of obstacles onto the game board
     function render() {
