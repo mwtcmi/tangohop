@@ -139,8 +139,7 @@ window.requestAnimationFrame = (function(){
         // Current level (1, 2, 3…). Game now keeps going forever — clearing 5 pads
         // advances the level rather than ending the game. Obstacle speeds scale with
         // level via the LEVEL_SPEED_STEP multiplier.
-        // TEMP 2026-05-18: starting at level 2 for testing — revert to 1 before going live
-        _level = 2,
+        _level = 1,
         LEVEL_SPEED_STEP = 0.15,
 
         // Define a Boolean variable to indicate whether the player's movement is currently
@@ -393,11 +392,6 @@ window.requestAnimationFrame = (function(){
 
         // Broadcast the initial level so the HUD shows "LV 1" from the start
         Frogger.observer.publish("level-change", _level);
-
-        // If starting above level 1 (e.g. for testing), apply the speed multiplier now
-        if (_level > 1) {
-            Frogger.observer.publish("level-up", 1 + (_level - 1) * LEVEL_SPEED_STEP);
-        }
 
         // Start the game loop running
         gameLoop();
