@@ -8,6 +8,11 @@ const PORT = parseInt(process.env.PORT || '3000', 10);
 const SECRET_HEX = process.env.TANGOHOP_SECRET || process.env.FROGMAN_SECRET;
 const DB_PATH = process.env.TANGOHOP_DB || process.env.FROGMAN_DB || '/var/lib/frogman/scores.db';
 const MS_PER_POINT = 5;
+// Absolute legit ceiling under the row-progress scoring rule:
+//   5 goal pads × 1000 + (5 successful + 4 wasted-life) climbs × ~120pt ≈ 6080
+// 7000 leaves comfortable buffer for any edge case while rejecting a tampered
+// client that re-enables the old 20pt-per-move farming (~12000 over 60s).
+const MAX_SCORE = 7000;
 
 if (!SECRET_HEX || !/^[0-9a-fA-F]{64}$/.test(SECRET_HEX)) {
   console.error(JSON.stringify({ t: new Date().toISOString(), level: 'fatal', event: 'invalid_secret', msg: 'TANGOHOP_SECRET must be 64 hex chars (32 bytes)' }));
@@ -144,6 +149,7 @@ app.post('/api/score', scoreLimiter, (req, res) => {
   if (typeof nonce !== 'string' || nonce.length < 8 || nonce.length > 64) return reject('bad_nonce');
   if (typeof signature !== 'string' || !HEX64_RE.test(signature)) return reject('bad_signature');
 
+  if (score > MAX_SCORE) return reject('implausible_score');
   if (score > Math.floor(durationMs / MS_PER_POINT)) return reject('implausible_score');
 
   const expected = crypto

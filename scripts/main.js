@@ -140,6 +140,11 @@ window.requestAnimationFrame = (function(){
         // frozen in place
         _isPlayerFrozen = false,
 
+        // Track the smallest `top` (i.e. furthest-forward row) the player has reached
+        // this life. Points are only awarded when the player advances beyond this — so
+        // sideways and backward moves earn nothing and can't be farmed.
+        _furthestTop = Infinity,
+
         // Define a variable to store the last time the game loop ran - this helps keep
         // the animation running smoothly at the defined refresh rate
         _lastTimeGameLoopRan = (new Date()).getTime();
@@ -282,9 +287,14 @@ window.requestAnimationFrame = (function(){
     }
 
     // Define a function to execute when the player moves their character on the game
-    // board, increasing their score by 20 points when they do
+    // board. Only award points for forward progress into a row the player hasn't
+    // reached yet this life — this prevents farming by hopping left/right or back.
     function playerMoved() {
-        increaseScore(20);
+        var currentTop = Frogger.Character.getTop();
+        if (currentTop < _furthestTop) {
+            _furthestTop = currentTop;
+            increaseScore(10);
+        }
     }
 
     // Define a function to be called when the game board needs to be reset, such as when
@@ -293,6 +303,10 @@ window.requestAnimationFrame = (function(){
 
         // Reset the variable storing the current time remaining to its initial value
         _timeRemaining = _timeTotal;
+
+        // Clear the furthest-row tracker so the player can re-earn the climb after a
+        // respawn or after returning to the start row following a goal.
+        _furthestTop = Infinity;
 
         // Release the player's character if it has been frozen in place
         unfreezePlayer();
