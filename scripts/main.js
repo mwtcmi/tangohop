@@ -899,19 +899,17 @@ Frogger.ImageSprite.prototype = {
         Frogger.drawingSurface.fillStyle = "#F00";
         Frogger.drawingSurface.fillText(_highScore, _gameBoard.columns[8], _gameBoard.grid.height);
 
-        // Compact "LV N" indicator centered in the gap between the score and high-score
-        // blocks. Smaller font + single line so the 67px label/value can't smoosh into
-        // the neighbouring text.
-        Frogger.drawingSurface.font = "40px Arcade Classic";
+        // "LV N" indicator sits in the bottom HUD strip, centered between the Lives
+        // sprites (bottom-left) and the TIME label (bottom-right). Plenty of horizontal
+        // room here, unlike the cramped top row.
         Frogger.drawingSurface.textAlign = "center";
         Frogger.drawingSurface.fillStyle = "#FF0";
         Frogger.drawingSurface.fillText(
             "LV " + _level,
-            (_gameBoard.columns[3] + _gameBoard.columns[8]) / 2,
-            _gameBoard.grid.height * 0.85
+            Frogger.drawingSurfaceWidth / 2,
+            Frogger.drawingSurfaceHeight
         );
-        // Restore font + alignment so later renderers aren't surprised by our overrides
-        Frogger.drawingSurface.font = _font;
+        // Restore alignment so later renderers aren't surprised by our override
         Frogger.drawingSurface.textAlign = "end";
     }
 
