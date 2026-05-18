@@ -362,7 +362,7 @@ footer.brand a:hover { text-decoration: underline; }
 <footer class="brand">
   Built on <a href="https://github.com/denodell/frogger" target="_blank" rel="noopener"><em>denodell/frogger</em></a> &nbsp;·&nbsp; <span class="sangoma">© Sangoma</span> · FreePBX is a registered trademark of Sangoma Technologies
 </footer>
-<script>
+<script nonce="__CSP_NONCE__">
 const rows = document.getElementById('rows');
 let seen = new Set();
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
@@ -383,8 +383,26 @@ connect();
 </script>
 </body></html>`;
 
+// Defense-in-depth on top of the in-page `esc()` escaper: per-request nonce CSP
+// so even if a stored XSS slipped past escaping, the injected <script> couldn't
+// run (no matching nonce) and any external exfil channel would be blocked.
+const LEADERBOARD_CSP_BASE = [
+  "default-src 'none'",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src https://mwtcmi.github.io",
+  "font-src https://mwtcmi.github.io",
+  "connect-src 'self'",
+  "base-uri 'none'",
+  "frame-ancestors 'none'",
+  "form-action 'none'"
+].join('; ');
+
 app.get('/leaderboard', (req, res) => {
-  res.set('Content-Type', 'text/html; charset=utf-8').send(LEADERBOARD_HTML);
+  const nonce = crypto.randomBytes(16).toString('base64');
+  res.set({
+    'Content-Type': 'text/html; charset=utf-8',
+    'Content-Security-Policy': `${LEADERBOARD_CSP_BASE}; script-src 'nonce-${nonce}'`
+  }).send(LEADERBOARD_HTML.replace('__CSP_NONCE__', nonce));
 });
 
 let server;
