@@ -2162,8 +2162,12 @@ Frogger.Row = (function() {
             })
         ];
 
-        // Capture base speeds for each row so they can be rescaled per level
+        // Capture base speeds + obstacle counts for each row so the level-up handler
+        // can rescale speeds and trim any pushed obstacles (e.g. GoalFrogs).
         _baseSpeeds = _rows.map(function (row) { return row.speed; });
+        _baseObstacleCounts = _rows.map(function (row) {
+            return Array.isArray(row.obstacles) ? row.obstacles.length : 0;
+        });
 
         // With the rows and obstacles initialized, connect the local render() function to
         // the "render-base-layer" event fired from within the game loop to draw those
@@ -2171,24 +2175,32 @@ Frogger.Row = (function() {
         Frogger.observer.subscribe("render-base-layer", render);
     }
 
+    // Capture the original obstacle counts for each row so the level-up handler can
+    // trim any appended items (e.g. GoalFrog pushed onto the Goal row when the player
+    // fills a pad) back down to the as-built shape.
+    var _baseObstacleCounts = [];
+
     // Apply a level multiplier to each row's speed (relative to the captured base) and
     // wipe filled goal pads so the player can refill them on the new level.
     Frogger.observer.subscribe("level-up", function (multiplier) {
+        console.log("[level-up] fired, multiplier =", multiplier, "rows =", _rows.length);
         for (var i = 0, n = _rows.length; i < n; i++) {
             var row = _rows[i],
-                base = _baseSpeeds[i];
+                base = _baseSpeeds[i],
+                baseCount = _baseObstacleCounts[i];
             if (base === 0) {
-                // Goal row: keep stationary, drop placed GoalFrogs, re-arm the markers.
-                // Use instanceof on the original Goal class so we can't be fooled by a
-                // prototype-chain quirk on `isMet`.
+                // Goal row: trim back to the original obstacle count (drops any pushed
+                // GoalFrogs) and re-arm isMet on the remaining Goal markers.
                 row.speed = 0;
                 if (Array.isArray(row.obstacles)) {
-                    for (var j = row.obstacles.length - 1; j >= 0; j--) {
-                        if (!(row.obstacles[j] instanceof Frogger.Image.Goal)) {
-                            row.obstacles.splice(j, 1);
-                        }
+                    var beforeLen = row.obstacles.length;
+                    while (row.obstacles.length > baseCount) {
+                        row.obstacles.pop();
                     }
-                    row.obstacles.forEach(function (o) { o.isMet = false; });
+                    for (var k = 0; k < row.obstacles.length; k++) {
+                        row.obstacles[k].isMet = false;
+                    }
+                    console.log("[level-up] goal row trimmed", beforeLen, "->", row.obstacles.length, "isMet reset");
                 }
             } else {
                 row.speed = Math.max(1, Math.round(base * multiplier));
