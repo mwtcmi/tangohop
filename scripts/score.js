@@ -106,7 +106,7 @@
                  border-radius:4px; font:600 14px ui-monospace, Menlo, monospace;
                  margin-bottom:10px;">
         <input id="th-email" type="email" maxlength="120"
-          placeholder="Email (optional — for swag eligibility)"
+          placeholder="Email (optional — swag only, auto-deleted after 30 days)"
           style="width:100%; box-sizing:border-box; padding:10px;
                  background:#0a0f1a; color:#e7eefc; border:1px solid #2a3654;
                  border-radius:4px; font:14px system-ui, sans-serif;

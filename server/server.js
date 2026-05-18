@@ -90,6 +90,23 @@ setInterval(() => {
   if (r.changes > 0) log('info', 'nonce_purge', { count: r.changes });
 }, 3600 * 1000).unref();
 
+// PII retention: null out email/ip/ua on rows older than the retention window
+// so a backup leak or stolen disk doesn't expose a forever-growing attendee
+// list keyed to IPs. Scores + names stay (those are the leaderboard product).
+const PII_RETENTION_MS = 30 * 24 * 3600 * 1000;
+const piiPurgeStmt = db.prepare(`
+  UPDATE scores SET email = NULL, ip = NULL, ua = NULL
+  WHERE created_at < ?
+    AND (email IS NOT NULL OR ip IS NOT NULL OR ua IS NOT NULL)
+`);
+const purgePII = () => {
+  const cutoff = Date.now() - PII_RETENTION_MS;
+  const r = piiPurgeStmt.run(cutoff);
+  if (r.changes > 0) log('info', 'pii_purge', { count: r.changes, retentionDays: 30 });
+};
+purgePII();
+setInterval(purgePII, 24 * 3600 * 1000).unref();
+
 const top10 = () => getTop10Stmt.all();
 
 // SSE client tracking with global + per-IP caps so one peer can't open
