@@ -899,12 +899,20 @@ Frogger.ImageSprite.prototype = {
         Frogger.drawingSurface.fillStyle = "#F00";
         Frogger.drawingSurface.fillText(_highScore, _gameBoard.columns[8], _gameBoard.grid.height);
 
-        // Write "LEVEL" label and the current level value, positioned between the score
-        // and high-score blocks, matching their two-line label/value layout.
-        Frogger.drawingSurface.fillStyle = "#FFF";
-        Frogger.drawingSurface.fillText("LEVEL", _gameBoard.columns[6], _gameBoard.grid.height / 2);
+        // Compact "LV N" indicator centered in the gap between the score and high-score
+        // blocks. Smaller font + single line so the 67px label/value can't smoosh into
+        // the neighbouring text.
+        Frogger.drawingSurface.font = "40px Arcade Classic";
+        Frogger.drawingSurface.textAlign = "center";
         Frogger.drawingSurface.fillStyle = "#FF0";
-        Frogger.drawingSurface.fillText(_level, _gameBoard.columns[6], _gameBoard.grid.height);
+        Frogger.drawingSurface.fillText(
+            "LV " + _level,
+            (_gameBoard.columns[3] + _gameBoard.columns[8]) / 2,
+            _gameBoard.grid.height * 0.85
+        );
+        // Restore font + alignment so later renderers aren't surprised by our overrides
+        Frogger.drawingSurface.font = _font;
+        Frogger.drawingSurface.textAlign = "end";
     }
 
     // Define a function to render the text "GAME OVER" to the <canvas>. This will only be
@@ -2170,10 +2178,16 @@ Frogger.Row = (function() {
             var row = _rows[i],
                 base = _baseSpeeds[i];
             if (base === 0) {
-                // Goal row: keep stationary, drop placed GoalFrogs, re-arm the markers
+                // Goal row: keep stationary, drop placed GoalFrogs, re-arm the markers.
+                // Use instanceof on the original Goal class so we can't be fooled by a
+                // prototype-chain quirk on `isMet`.
                 row.speed = 0;
                 if (Array.isArray(row.obstacles)) {
-                    row.obstacles = row.obstacles.filter(function (o) { return 'isMet' in o; });
+                    for (var j = row.obstacles.length - 1; j >= 0; j--) {
+                        if (!(row.obstacles[j] instanceof Frogger.Image.Goal)) {
+                            row.obstacles.splice(j, 1);
+                        }
+                    }
                     row.obstacles.forEach(function (o) { o.isMet = false; });
                 }
             } else {
