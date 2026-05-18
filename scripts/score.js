@@ -11,13 +11,11 @@
   const ONLINE = !!(API_URL && SECRET);
 
   let currentScore = 0;
-  let currentLevel = 1;
   let localHighScore = +localStorage.getItem(STORE_KEY) || 0;
   let serverRank = null;
   let gameStartedAt = null;
   let submittedForThisRun = false;
   const MAX_DURATION_MS = 30 * 60 * 1000;
-  const GAME_URL = "https://mwtcmi.github.io/tangohop/";
 
   // ---------- HUD ----------
   const hud = document.createElement("div");
@@ -113,18 +111,13 @@
                  background:#0a0f1a; color:#e7eefc; border:1px solid #2a3654;
                  border-radius:4px; font:14px system-ui, sans-serif;
                  margin-bottom:16px;">
-        <div style="display:flex; gap:8px; justify-content:space-between; align-items:center;">
-          <button id="th-share" style="padding:8px 14px; background:transparent;
-            color:#00d1ff; border:1px solid #00d1ff; border-radius:4px;
-            cursor:pointer; font:700 13px system-ui, sans-serif;">Share</button>
-          <div style="display:flex; gap:8px;">
-            <button id="th-skip" style="padding:8px 14px; background:transparent;
-              color:#7a92b8; border:1px solid #2a3654; border-radius:4px;
-              cursor:pointer; font:600 13px system-ui, sans-serif;">Skip</button>
-            <button id="th-submit" style="padding:8px 14px; background:#80c343;
-              color:#0a2010; border:none; border-radius:4px;
-              cursor:pointer; font:700 13px system-ui, sans-serif;">Submit</button>
-          </div>
+        <div style="display:flex; gap:8px; justify-content:flex-end;">
+          <button id="th-skip" style="padding:8px 14px; background:transparent;
+            color:#7a92b8; border:1px solid #2a3654; border-radius:4px;
+            cursor:pointer; font:600 13px system-ui, sans-serif;">Skip</button>
+          <button id="th-submit" style="padding:8px 14px; background:#80c343;
+            color:#0a2010; border:none; border-radius:4px;
+            cursor:pointer; font:700 13px system-ui, sans-serif;">Submit</button>
         </div>
       `;
       overlay.appendChild(modal);
@@ -157,18 +150,6 @@
         close({ name, email: emailInput.value.trim() || undefined });
       };
       modal.querySelector("#th-skip").onclick = () => close(null);
-      // Share button: native share sheet on mobile, X intent on desktop. Does NOT
-      // close the modal — the player can still submit to the leaderboard after.
-      modal.querySelector("#th-share").onclick = async () => {
-        const text = `I just hit ${score.toLocaleString()} on level ${currentLevel} of Tango Hop — FreePBX's Frogger-style game. Try to beat me:`;
-        if (navigator.share) {
-          try { await navigator.share({ title: "Tango Hop", text, url: GAME_URL }); }
-          catch (_) { /* user cancelled */ }
-        } else {
-          const intent = "https://twitter.com/intent/tweet?text=" + encodeURIComponent(`${text} ${GAME_URL}`);
-          window.open(intent, "_blank", "noopener,noreferrer");
-        }
-      };
       nameInput.onkeydown = (e) => {
         if (e.key === "Enter") modal.querySelector("#th-submit").click();
         if (e.key === "Escape") close(null);
@@ -280,9 +261,6 @@
     Frogger.observer.subscribe("score-change", (newScore) => {
       currentScore = newScore;
       renderHud();
-    });
-    Frogger.observer.subscribe("level-change", (newLevel) => {
-      currentLevel = newLevel;
     });
     Frogger.observer.subscribe("high-score-change", (newHigh) => {
       if (newHigh > localHighScore) {
