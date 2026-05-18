@@ -29,6 +29,17 @@ const log = (level, event, fields = {}) => {
   console.log(JSON.stringify({ t: new Date().toISOString(), level, event, ...fields }));
 };
 
+// Profanity matcher (obscenity is dual CJS/ESM; dynamic import works for both).
+// Initialized before app.listen so all requests see a ready matcher.
+let profanityMatcher = null;
+async function initProfanityFilter() {
+  const { RegExpMatcher, englishDataset, englishRecommendedTransformers } = await import('obscenity');
+  profanityMatcher = new RegExpMatcher({
+    ...englishDataset.build(),
+    ...englishRecommendedTransformers,
+  });
+}
+
 const db = new Database(DB_PATH);
 db.pragma('journal_mode = WAL');
 db.pragma('synchronous = NORMAL');
@@ -43,6 +54,7 @@ db.exec(`
     created_at INTEGER NOT NULL
   );
   CREATE INDEX IF NOT EXISTS idx_score ON scores(score DESC);
+  CREATE INDEX IF NOT EXISTS idx_email ON scores(email);
   CREATE TABLE IF NOT EXISTS nonces (
     nonce TEXT PRIMARY KEY,
     created_at INTEGER NOT NULL
@@ -60,6 +72,13 @@ const getRankStmt = db.prepare(`
 const insertScoreStmt = db.prepare(`
   INSERT INTO scores (name, email, score, duration_ms, ip, ua, created_at)
   VALUES (?, ?, ?, ?, ?, ?, ?)
+`);
+const findByEmailStmt = db.prepare(`
+  SELECT id, score, created_at AS createdAt FROM scores WHERE email = ?
+`);
+const updateScoreStmt = db.prepare(`
+  UPDATE scores SET name = ?, score = ?, duration_ms = ?, ip = ?, ua = ?, created_at = ?
+  WHERE id = ?
 `);
 const insertNonceStmt = db.prepare(`INSERT INTO nonces (nonce, created_at) VALUES (?, ?)`);
 const checkNonceStmt = db.prepare(`SELECT 1 FROM nonces WHERE nonce = ?`);
@@ -149,6 +168,14 @@ app.post('/api/score', scoreLimiter, (req, res) => {
   if (typeof nonce !== 'string' || nonce.length < 8 || nonce.length > 64) return reject('bad_nonce');
   if (typeof signature !== 'string' || !HEX64_RE.test(signature)) return reject('bad_signature');
 
+  if (profanityMatcher && profanityMatcher.hasMatch(name)) {
+    log('info', 'score_reject', { reason: 'profanity', ip, name });
+    return res.status(400).json({
+      error: 'profanity',
+      message: "Nice try — no froggin' around. Let's keep it clean."
+    });
+  }
+
   if (score > MAX_SCORE) return reject('implausible_score');
   if (score > Math.floor(durationMs / MS_PER_POINT)) return reject('implausible_score');
 
@@ -163,17 +190,43 @@ app.post('/api/score', scoreLimiter, (req, res) => {
 
   if (checkNonceStmt.get(nonce)) return reject('replay');
 
+  // One row per email (case-insensitive, trimmed). New submission replaces the
+  // existing row only if it beats the player's previous best; otherwise the
+  // older/higher row stands and we return its rank. Email-less submissions
+  // still get their own row each time.
+  const normalizedEmail = email ? email.trim().toLowerCase() : null;
   const now = Date.now();
   let insertId;
+  let effectiveScore = score;
+  let effectiveTime = now;
+  let outcome = 'inserted';
   const tx = db.transaction(() => {
     insertNonceStmt.run(nonce, now);
-    insertId = insertScoreStmt.run(name, email || null, score, durationMs, ip, ua, now).lastInsertRowid;
+    if (normalizedEmail) {
+      const existing = findByEmailStmt.get(normalizedEmail);
+      if (existing) {
+        if (score > existing.score) {
+          updateScoreStmt.run(name, score, durationMs, ip, ua, now, existing.id);
+          insertId = existing.id;
+          outcome = 'updated';
+        } else {
+          insertId = existing.id;
+          effectiveScore = existing.score;
+          effectiveTime = existing.createdAt;
+          outcome = 'kept_existing';
+        }
+      } else {
+        insertId = insertScoreStmt.run(name, normalizedEmail, score, durationMs, ip, ua, now).lastInsertRowid;
+      }
+    } else {
+      insertId = insertScoreStmt.run(name, null, score, durationMs, ip, ua, now).lastInsertRowid;
+    }
   });
   tx();
 
-  const { rank } = getRankStmt.get(score, score, now);
+  const { rank } = getRankStmt.get(effectiveScore, effectiveScore, effectiveTime);
   const list = top10();
-  log('info', 'score_accept', { name, score, durationMs, rank, ip });
+  log('info', 'score_accept', { name, score, durationMs, rank, ip, outcome, effectiveScore });
 
   if (list.some(r => r.id === insertId)) broadcastTop10();
 
@@ -309,14 +362,21 @@ app.get('/leaderboard', (req, res) => {
   res.set('Content-Type', 'text/html; charset=utf-8').send(LEADERBOARD_HTML);
 });
 
-const server = app.listen(PORT, '0.0.0.0', () => {
-  log('info', 'listen', { port: PORT });
-});
-
+let server;
 const shutdown = (sig) => {
   log('info', 'shutdown', { signal: sig });
-  server.close(() => { db.close(); process.exit(0); });
+  if (server) server.close(() => { db.close(); process.exit(0); });
+  else { db.close(); process.exit(0); }
   setTimeout(() => process.exit(1), 5000).unref();
 };
 process.on('SIGTERM', () => shutdown('SIGTERM'));
 process.on('SIGINT', () => shutdown('SIGINT'));
+
+initProfanityFilter().then(() => {
+  server = app.listen(PORT, '0.0.0.0', () => {
+    log('info', 'listen', { port: PORT });
+  });
+}).catch((err) => {
+  console.error(JSON.stringify({ t: new Date().toISOString(), level: 'fatal', event: 'profanity_init_failed', msg: err && err.message }));
+  process.exit(1);
+});

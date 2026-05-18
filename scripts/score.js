@@ -131,10 +131,19 @@
         overlay.remove();
         resolve(val);
       }
+      // Quick client-side gut-check on common slurs/swears for instant feedback.
+      // Server runs the full obscenity matcher and is the authority.
+      const CLIENT_PROFANITY = /\b(fuck|fuk|fck|shit|sht|ass|azz|cunt|cnt|bitch|btch|cock|dick|dik|piss|tit|fag|jew|nig|nazi|kkk|kys|cum|jiz|jizz|wank|hoe|slut|twat|whore)\b/i;
       modal.querySelector("#th-submit").onclick = () => {
         const name = nameInput.value.trim();
         if (!/^[A-Za-z0-9_-]{1,24}$/.test(name)) {
           nameInput.style.borderColor = "#e02020";
+          nameInput.focus();
+          return;
+        }
+        if (CLIENT_PROFANITY.test(name)) {
+          nameInput.style.borderColor = "#e02020";
+          showResult("Nice try — no froggin' around. Let's keep it clean.", "#e02020");
           nameInput.focus();
           return;
         }
@@ -219,7 +228,8 @@
         const reason = (body.error || `http_${res.status}`).toString().toUpperCase();
         console.warn("Score rejected:", reason, body);
         renderHud();
-        showResult(`REJECTED: ${reason}`, "#e02020");
+        // Server may return a friendly `message` (e.g. profanity hint); prefer it.
+        showResult(body.message || `REJECTED: ${reason}`, "#e02020");
         return;
       }
       const data = await res.json();

@@ -9,6 +9,7 @@
     "better-sqlite3": "^11.5.0",
     "express": "^4.21.1",
     "express-rate-limit": "^7.5.0",
-    "helmet": "^8.0.0"
+    "helmet": "^8.0.0",
+    "obscenity": "^0.4.0"
   }
 }
