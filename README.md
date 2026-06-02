@@ -1,9 +1,11 @@
-Tango Hop
-=========
+Frogman
+=======
 
 A FreePBX-themed HTML5 canvas hopping game. Guide **Tango** across congested SIP trunk lanes, ride RTP streams, and dock on all five FreePBX extension pads.
 
-Play live: https://mwtcmi.github.io/tangohop/
+Promo arcade for [**Frogman**](https://github.com/mwtcmi/frogman) — the headless FreePBX control module (MCP + HTTP API, 234 tools).
+
+Play live: https://mwtcmi.github.io/frogman-game/
 
 Controls
 --------
