@@ -143,6 +143,7 @@ app.use(express.json({ limit: '4kb' }));
 
 const NAME_RE = /^[A-Za-z0-9_-]{1,24}$/;
 const HEX64_RE = /^[0-9a-f]{64}$/i;
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const scoreLimiter = rateLimit({
   windowMs: 10_000,
@@ -201,7 +202,7 @@ app.post('/api/score', scoreLimiter, (req, res) => {
   };
 
   if (typeof name !== 'string' || !NAME_RE.test(name)) return reject('bad_name');
-  if (email !== undefined && email !== null && (typeof email !== 'string' || email.length > 120)) return reject('bad_email');
+  if (typeof email !== 'string' || email.length > 120 || !EMAIL_RE.test(email.trim())) return reject('bad_email');
   if (!Number.isInteger(score) || score < 0 || score > 1_000_000) return reject('bad_score');
   if (!Number.isInteger(durationMs) || durationMs < 1 || durationMs > 7_200_000) return reject('bad_duration');
   if (typeof nonce !== 'string' || nonce.length < 8 || nonce.length > 64) return reject('bad_nonce');
@@ -234,9 +235,8 @@ app.post('/api/score', scoreLimiter, (req, res) => {
 
   // One row per email (case-insensitive, trimmed). New submission replaces the
   // existing row only if it beats the player's previous best; otherwise the
-  // older/higher row stands and we return its rank. Email-less submissions
-  // still get their own row each time.
-  const normalizedEmail = email ? email.trim().toLowerCase() : null;
+  // older/higher row stands and we return its rank.
+  const normalizedEmail = email.trim().toLowerCase();
   const now = Date.now();
   let insertId;
   let effectiveScore = score;
@@ -244,24 +244,20 @@ app.post('/api/score', scoreLimiter, (req, res) => {
   let outcome = 'inserted';
   const tx = db.transaction(() => {
     insertNonceStmt.run(nonce, now);
-    if (normalizedEmail) {
-      const existing = findByEmailStmt.get(normalizedEmail);
-      if (existing) {
-        if (score > existing.score) {
-          updateScoreStmt.run(name, score, durationMs, ip, ua, now, existing.id);
-          insertId = existing.id;
-          outcome = 'updated';
-        } else {
-          insertId = existing.id;
-          effectiveScore = existing.score;
-          effectiveTime = existing.createdAt;
-          outcome = 'kept_existing';
-        }
+    const existing = findByEmailStmt.get(normalizedEmail);
+    if (existing) {
+      if (score > existing.score) {
+        updateScoreStmt.run(name, score, durationMs, ip, ua, now, existing.id);
+        insertId = existing.id;
+        outcome = 'updated';
       } else {
-        insertId = insertScoreStmt.run(name, normalizedEmail, score, durationMs, ip, ua, now).lastInsertRowid;
+        insertId = existing.id;
+        effectiveScore = existing.score;
+        effectiveTime = existing.createdAt;
+        outcome = 'kept_existing';
       }
     } else {
-      insertId = insertScoreStmt.run(name, null, score, durationMs, ip, ua, now).lastInsertRowid;
+      insertId = insertScoreStmt.run(name, normalizedEmail, score, durationMs, ip, ua, now).lastInsertRowid;
     }
   });
   tx();

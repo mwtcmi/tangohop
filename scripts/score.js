@@ -105,8 +105,8 @@
                  background:#0a0f1a; color:#e7eefc; border:1px solid #2a3654;
                  border-radius:4px; font:600 14px ui-monospace, Menlo, monospace;
                  margin-bottom:10px;">
-        <input id="th-email" type="email" maxlength="120"
-          placeholder="Email (optional — swag only, auto-deleted after 30 days)"
+        <input id="th-email" type="email" maxlength="120" required
+          placeholder="Email (swag only, auto-deleted after 30 days)"
           style="width:100%; box-sizing:border-box; padding:10px;
                  background:#0a0f1a; color:#e7eefc; border:1px solid #2a3654;
                  border-radius:4px; font:14px system-ui, sans-serif;
@@ -134,6 +134,7 @@
       // Quick client-side gut-check on common slurs/swears for instant feedback.
       // Server runs the full obscenity matcher and is the authority.
       const CLIENT_PROFANITY = /\b(fuck|fuk|fck|shit|sht|ass|azz|cunt|cnt|bitch|btch|cock|dick|dik|piss|tit|fag|jew|nig|nazi|kkk|kys|cum|jiz|jizz|wank|hoe|slut|twat|whore)\b/i;
+      const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       modal.querySelector("#th-submit").onclick = () => {
         const name = nameInput.value.trim();
         if (!/^[A-Za-z0-9_-]{1,24}$/.test(name)) {
@@ -147,13 +148,21 @@
           nameInput.focus();
           return;
         }
-        close({ name, email: emailInput.value.trim() || undefined });
+        const email = emailInput.value.trim();
+        if (!EMAIL_RE.test(email) || email.length > 120) {
+          emailInput.style.borderColor = "#e02020";
+          emailInput.focus();
+          return;
+        }
+        close({ name, email });
       };
       modal.querySelector("#th-skip").onclick = () => close(null);
-      nameInput.onkeydown = (e) => {
+      const onkey = (e) => {
         if (e.key === "Enter") modal.querySelector("#th-submit").click();
         if (e.key === "Escape") close(null);
       };
+      nameInput.onkeydown = onkey;
+      emailInput.onkeydown = onkey;
     });
   }
 
