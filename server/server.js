@@ -179,16 +179,23 @@ app.get('/api/leaderboard/sse', (req, res) => {
   res.write(`event: top10\ndata: ${JSON.stringify(top10())}\n\n`);
   sseClients.add(res);
   sseByIp.set(ip, ipCount + 1);
-  const ping = setInterval(() => { try { res.write(`: ping\n\n`); } catch {} }, 25_000);
+  let ping;
   const cleanup = () => {
-    clearInterval(ping);
+    if (ping) { clearInterval(ping); ping = null; }
     if (sseClients.delete(res)) {
       const remaining = (sseByIp.get(ip) || 1) - 1;
       if (remaining <= 0) sseByIp.delete(ip);
       else sseByIp.set(ip, remaining);
     }
   };
+  // res.on('close') is the reliable disconnect signal for SSE in Express;
+  // req.on('close') and res.on('error') can stay silent behind a reverse
+  // proxy, leaving zombie entries that pin the per-IP cap.
+  ping = setInterval(() => {
+    try { res.write(`: ping\n\n`); } catch { cleanup(); }
+  }, 25_000);
   req.on('close', cleanup);
+  res.on('close', cleanup);
   res.on('error', cleanup);
 });
 
