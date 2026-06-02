@@ -52,6 +52,18 @@
     crypto.getRandomValues(bytes);
     return bytesToHex(bytes);
   }
+  // Persisted per-browser identifier. Lets the server dedupe a player who
+  // resubmits under multiple emails or handles from the same device. Cleared
+  // by incognito or storage wipe — best-effort.
+  const CLIENT_ID_KEY = "tangohop-client-id";
+  function getClientId() {
+    let id = localStorage.getItem(CLIENT_ID_KEY);
+    if (!id) {
+      id = crypto.randomUUID ? crypto.randomUUID() : randomNonce();
+      localStorage.setItem(CLIENT_ID_KEY, id);
+    }
+    return id;
+  }
   async function sign(payload) {
     const key = await crypto.subtle.importKey(
       "raw",
@@ -233,7 +245,8 @@
           score: finalScore,
           durationMs,
           nonce,
-          signature
+          signature,
+          clientId: getClientId()
         })
       });
       if (!res.ok) {

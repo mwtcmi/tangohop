@@ -60,6 +60,10 @@ db.exec(`
     created_at INTEGER NOT NULL
   );
 `);
+// Idempotent column add. better-sqlite3 throws if the column already exists,
+// so wrap and ignore — we re-run on every boot.
+try { db.exec(`ALTER TABLE scores ADD COLUMN client_id TEXT`); } catch (_) {}
+db.exec(`CREATE INDEX IF NOT EXISTS idx_client_id ON scores(client_id)`);
 
 // Collapse rows to the best per case-insensitive handle so a player who
 // re-submits with new emails (different rows under the email-dedupe rule)
@@ -86,14 +90,19 @@ const getRankStmt = db.prepare(`
 // so a player using throwaway emails under the same handle counts once.
 const getPlayerCountStmt = db.prepare(`SELECT COUNT(DISTINCT LOWER(name)) AS n FROM scores`);
 const insertScoreStmt = db.prepare(`
-  INSERT INTO scores (name, email, score, duration_ms, ip, ua, created_at)
-  VALUES (?, ?, ?, ?, ?, ?, ?)
+  INSERT INTO scores (name, email, score, duration_ms, ip, ua, client_id, created_at)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?)
 `);
 const findByEmailStmt = db.prepare(`
   SELECT id, score, created_at AS createdAt FROM scores WHERE email = ?
 `);
+const findByClientIdStmt = db.prepare(`
+  SELECT id, score, created_at AS createdAt FROM scores WHERE client_id = ?
+`);
 const updateScoreStmt = db.prepare(`
-  UPDATE scores SET name = ?, score = ?, duration_ms = ?, ip = ?, ua = ?, created_at = ?
+  UPDATE scores
+  SET name = ?, email = ?, score = ?, duration_ms = ?, ip = ?, ua = ?,
+      client_id = COALESCE(?, client_id), created_at = ?
   WHERE id = ?
 `);
 const insertNonceStmt = db.prepare(`INSERT INTO nonces (nonce, created_at) VALUES (?, ?)`);
@@ -224,8 +233,14 @@ app.get('/api/leaderboard/sse', (req, res) => {
   res.on('error', cleanup);
 });
 
+// Client-generated UUID persisted in localStorage. Best-effort dedupe of the
+// same browser submitting under multiple emails/handles. Honor-system: a
+// determined cheater can clear storage or use a new browser, but it stops the
+// casual reload-and-replay. Loose regex covers crypto.randomUUID() and our
+// hex fallback.
+const CLIENT_ID_RE = /^[a-f0-9-]{16,64}$/i;
 app.post('/api/score', scoreLimiter, (req, res) => {
-  const { name, email, score, durationMs, nonce, signature } = req.body || {};
+  const { name, email, score, durationMs, nonce, signature, clientId } = req.body || {};
   const ip = req.ip;
   const ua = (req.get('user-agent') || '').slice(0, 256);
   const reject = (reason, status = 400) => {
@@ -239,6 +254,10 @@ app.post('/api/score', scoreLimiter, (req, res) => {
   if (!Number.isInteger(durationMs) || durationMs < 1 || durationMs > 7_200_000) return reject('bad_duration');
   if (typeof nonce !== 'string' || nonce.length < 8 || nonce.length > 64) return reject('bad_nonce');
   if (typeof signature !== 'string' || !HEX64_RE.test(signature)) return reject('bad_signature');
+  if (clientId != null && (typeof clientId !== 'string' || !CLIENT_ID_RE.test(clientId))) {
+    return reject('bad_client_id');
+  }
+  const normalizedClientId = typeof clientId === 'string' ? clientId.toLowerCase() : null;
 
   // Strip allowed-but-evasive separators ('_' and '-') before profanity check —
   // otherwise `f_u_c_k` and `sh-it` pass through. The original `name` is what
@@ -276,10 +295,14 @@ app.post('/api/score', scoreLimiter, (req, res) => {
   let outcome = 'inserted';
   const tx = db.transaction(() => {
     insertNonceStmt.run(nonce, now);
-    const existing = findByEmailStmt.get(normalizedEmail);
+    // Prefer client_id match (browser identity beats email — cheaters cycle
+    // emails). Fall back to email match for legacy rows / cleared storage.
+    const existing =
+      (normalizedClientId && findByClientIdStmt.get(normalizedClientId)) ||
+      findByEmailStmt.get(normalizedEmail);
     if (existing) {
       if (score > existing.score) {
-        updateScoreStmt.run(name, score, durationMs, ip, ua, now, existing.id);
+        updateScoreStmt.run(name, normalizedEmail, score, durationMs, ip, ua, normalizedClientId, now, existing.id);
         insertId = existing.id;
         outcome = 'updated';
       } else {
@@ -289,7 +312,7 @@ app.post('/api/score', scoreLimiter, (req, res) => {
         outcome = 'kept_existing';
       }
     } else {
-      insertId = insertScoreStmt.run(name, normalizedEmail, score, durationMs, ip, ua, now).lastInsertRowid;
+      insertId = insertScoreStmt.run(name, normalizedEmail, score, durationMs, ip, ua, normalizedClientId, now).lastInsertRowid;
     }
   });
   tx();
