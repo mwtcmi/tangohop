@@ -303,7 +303,6 @@ header.brand {
 }
 header.brand img.mascot {
   height: 96px; width: auto;
-  image-rendering: pixelated; image-rendering: crisp-edges;
 }
 header.brand h1 {
   margin: 0;
@@ -356,7 +355,7 @@ footer.brand a { color: var(--freepbx); text-decoration: none; }
 footer.brand a:hover { text-decoration: underline; }
 </style></head><body>
 <header class="brand">
-  <img class="mascot" src="https://mwtcmi.github.io/frogman-game/images/freepbx/tango8bit.png" alt="Tango — freePBX">
+  <img class="mascot" src="https://mwtcmi.github.io/frogman-game/images/freepbx/freepbx-logo.png" alt="FreePBX">
   <h1>
     FROGMAN
     <span class="sub">Connect or Croak</span>
