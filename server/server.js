@@ -302,7 +302,7 @@ header.brand {
   box-shadow: 0 2px 12px rgba(0,0,0,0.5);
 }
 header.brand img.mascot {
-  height: 96px; width: auto;
+  height: 64px; width: auto;
 }
 header.brand h1 {
   margin: 0;
