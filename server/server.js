@@ -360,11 +360,14 @@ header.brand a.cta.merch { color: #0a2010; background: var(--sangoma); border: 2
 header.brand a.cta.merch:hover { background: #b51717; border-color: #b51717; color: #fff; }
 main { flex: 1; display: flex; flex-direction: column; padding: 4vh 6vw 2vh; }
 .live { display: flex; align-items: center; justify-content: center; gap: 12px;
-  margin-bottom: 3vh;
+  margin-bottom: 1vh;
   color: var(--freepbx); font: 700 2vh/1 "Arcade Classic", ui-monospace, monospace;
   letter-spacing: 0.4em; }
 .live .sep { opacity: 0.5; }
 .live #players { color: var(--ink); }
+.notice { text-align: center; margin-bottom: 3vh;
+  color: var(--muted); font: 500 1.3vh/1 system-ui, sans-serif;
+  letter-spacing: 0.3em; text-transform: uppercase; }
 .dot { display: inline-block; width: 1.2vh; height: 1.2vh; border-radius: 50%;
   background: var(--freepbx); box-shadow: 0 0 12px var(--freepbx);
   animation: pulse 1.5s infinite; }
@@ -400,6 +403,7 @@ footer.brand a:hover { text-decoration: underline; }
 </header>
 <main>
   <div class="live"><span class="dot"></span>TOP 10 // LIVE<span class="sep">·</span><span id="players">—</span>&nbsp;PLAYERS</div>
+  <div class="notice">Winners verified before prizes are awarded</div>
   <table>
     <thead><tr><th>#</th><th>Name</th><th style="text-align:right">Score</th></tr></thead>
     <tbody id="rows"><tr><td colspan="3" class="empty">WAITING FOR PLAYERS...</td></tr></tbody>
