@@ -61,17 +61,30 @@ db.exec(`
   );
 `);
 
+// Collapse rows to the best per case-insensitive handle so a player who
+// re-submits with new emails (different rows under the email-dedupe rule)
+// still appears only once on the board.
 const getTop10Stmt = db.prepare(`
   SELECT id, name, score, duration_ms AS durationMs, created_at AS createdAt
-  FROM scores ORDER BY score DESC, created_at ASC LIMIT 10
+  FROM (
+    SELECT id, name, score, duration_ms, created_at,
+           ROW_NUMBER() OVER (
+             PARTITION BY LOWER(name)
+             ORDER BY score DESC, created_at ASC
+           ) AS rn
+    FROM scores
+  )
+  WHERE rn = 1
+  ORDER BY score DESC, created_at ASC
+  LIMIT 10
 `);
 const getRankStmt = db.prepare(`
   SELECT COUNT(*) + 1 AS rank FROM scores
   WHERE score > ? OR (score = ? AND created_at < ?)
 `);
-// One row per email, so this is unique-players-who-submitted, shown on the
-// booth leaderboard alongside the top 10.
-const getPlayerCountStmt = db.prepare(`SELECT COUNT(*) AS n FROM scores`);
+// Unique handles (case-insensitive) — matches the dedup used for the top 10,
+// so a player using throwaway emails under the same handle counts once.
+const getPlayerCountStmt = db.prepare(`SELECT COUNT(DISTINCT LOWER(name)) AS n FROM scores`);
 const insertScoreStmt = db.prepare(`
   INSERT INTO scores (name, email, score, duration_ms, ip, ua, created_at)
   VALUES (?, ?, ?, ?, ?, ?, ?)
