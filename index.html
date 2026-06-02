@@ -88,6 +88,16 @@
       border-color: #b51717;
       color: #fff;
     }
+    header.brand a.cta.frogman {
+      color: var(--accent);
+      border: 2px solid var(--accent);
+    }
+    header.brand a.cta.frogman:hover {
+      background: var(--accent);
+      color: #0a2010;
+    }
+    .side a { color: var(--accent); text-decoration: none; }
+    .side a:hover { text-decoration: underline; }
     main {
       display: grid;
       grid-template-columns: 1fr auto 1fr;
@@ -174,6 +184,7 @@
     </h1>
     <div class="spacer"></div>
     <a class="cta leaderboard" href="https://tangohop.freepbxapps.com/leaderboard" target="_blank" rel="noopener">Leaderboard</a>
+    <a class="cta frogman" href="https://github.com/mwtcmi/frogman" target="_blank" rel="noopener">Frogman</a>
     <a class="cta merch" href="https://merch.sangoma.com/unisex-men-s-t-shirts" target="_blank" rel="noopener">Merch</a>
   </header>
 
@@ -195,6 +206,11 @@
       </div>
       <div id="score-panel"></div>
     </div>
+
+    <aside class="side right">
+      <h2>Also from us</h2>
+      <p><a href="https://github.com/mwtcmi/frogman" target="_blank" rel="noopener">Frogman</a> — a headless, open-source FreePBX module. Available on GitHub.</p>
+    </aside>
   </main>
 
   <footer class="brand">

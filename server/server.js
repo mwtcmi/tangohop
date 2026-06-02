@@ -408,6 +408,9 @@ header.brand a.cta.play { color: var(--freepbx); border: 2px solid var(--freepbx
 header.brand a.cta.play:hover { background: var(--freepbx); color: #0a2010; }
 header.brand a.cta.merch { color: #0a2010; background: var(--sangoma); border: 2px solid var(--sangoma); }
 header.brand a.cta.merch:hover { background: #b51717; border-color: #b51717; color: #fff; }
+header.brand a.cta.frogman { color: var(--accent); border: 2px solid var(--accent); }
+header.brand a.cta.frogman:hover { background: var(--accent); color: #0a2010; }
+.notice a { color: var(--accent); text-decoration: none; }
 main { flex: 1; display: flex; flex-direction: column; padding: 4vh 6vw 2vh; }
 .live { display: flex; align-items: center; justify-content: center; gap: 12px;
   margin-bottom: 1vh;
@@ -449,11 +452,13 @@ footer.brand a:hover { text-decoration: underline; }
   </h1>
   <div class="spacer"></div>
   <a class="cta play" href="https://mwtcmi.github.io/tangohop/" target="_blank" rel="noopener">Play</a>
+  <a class="cta frogman" href="https://github.com/mwtcmi/frogman" target="_blank" rel="noopener">Frogman</a>
   <a class="cta merch" href="https://merch.sangoma.com/unisex-men-s-t-shirts" target="_blank" rel="noopener">Merch</a>
 </header>
 <main>
   <div class="live"><span class="dot"></span>TOP 10 // LIVE<span class="sep">·</span><span id="players">—</span>&nbsp;PLAYERS</div>
   <div class="notice">Winners verified before prizes are awarded</div>
+  <div class="notice">Also from us — <a href="https://github.com/mwtcmi/frogman" target="_blank" rel="noopener">Frogman</a>, a headless FreePBX module</div>
   <table>
     <thead><tr><th>#</th><th>Name</th><th style="text-align:right">Score</th></tr></thead>
     <tbody id="rows"><tr><td colspan="3" class="empty">WAITING FOR PLAYERS...</td></tr></tbody>
