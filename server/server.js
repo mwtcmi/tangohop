@@ -275,12 +275,12 @@ const LEADERBOARD_HTML = `<!doctype html>
 <html lang="en"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>FROGMAN — Leaderboard</title>
+<title>TANGO HOP — Leaderboard</title>
 <style>
 @font-face {
   font-family: "Arcade Classic";
-  src: url("https://mwtcmi.github.io/frogman-game/fonts/arcadeclassic.woff") format("woff"),
-       url("https://mwtcmi.github.io/frogman-game/fonts/arcadeclassic.ttf") format("truetype");
+  src: url("https://mwtcmi.github.io/tangohop/fonts/arcadeclassic.woff") format("woff"),
+       url("https://mwtcmi.github.io/tangohop/fonts/arcadeclassic.ttf") format("truetype");
   font-display: block;
 }
 :root {
@@ -355,13 +355,13 @@ footer.brand a { color: var(--freepbx); text-decoration: none; }
 footer.brand a:hover { text-decoration: underline; }
 </style></head><body>
 <header class="brand">
-  <img class="mascot" src="https://mwtcmi.github.io/frogman-game/images/freepbx/freepbx-logo.png" alt="FreePBX">
+  <img class="mascot" src="https://mwtcmi.github.io/tangohop/images/freepbx/freepbx-logo.png" alt="FreePBX">
   <h1>
-    FROGMAN
+    TANGO HOP
     <span class="sub">Connect or Croak</span>
   </h1>
   <div class="spacer"></div>
-  <a class="cta play" href="https://mwtcmi.github.io/frogman-game/" target="_blank" rel="noopener">Play</a>
+  <a class="cta play" href="https://mwtcmi.github.io/tangohop/" target="_blank" rel="noopener">Play</a>
   <a class="cta merch" href="https://merch.sangoma.com/unisex-men-s-t-shirts" target="_blank" rel="noopener">Merch</a>
 </header>
 <main>

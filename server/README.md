@@ -1,6 +1,6 @@
-# frogman-game server
+# tangohop server
 
-Leaderboard API + booth display for the Frogman swag-giveaway promo arcade.
+Leaderboard API + booth display for the Tangohop / Frogman swag-giveaway promo.
 
 ## Live
 
