@@ -437,8 +437,9 @@ tbody tr { border-bottom: 1px solid rgba(128,195,67,0.18); }
 tbody tr.flash { animation: flash 1.8s ease-out; }
 @keyframes flash { 0% { background: rgba(128,195,67,0.35); } 100% { background: transparent; } }
 .empty { text-align: center; padding: 8vh 0; opacity: 0.4; font-size: 3vh; color: var(--muted); }
-footer.brand { padding: 14px 24px; border-top: 1px solid #1a2342;
-  text-align: center; font: 500 11px/1.4 system-ui, sans-serif;
+footer.brand { padding: 22px 24px; margin-top: 2vh;
+  border-top: 1px solid #1a2342;
+  text-align: center; font: 500 11px/1.6 system-ui, sans-serif;
   color: var(--muted); letter-spacing: 1px; }
 footer.brand .sangoma { color: var(--sangoma); font-weight: 700; }
 footer.brand a { color: var(--freepbx); text-decoration: none; }
