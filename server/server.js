@@ -34,11 +34,20 @@ const log = (level, event, fields = {}) => {
 // Profanity matcher (obscenity is dual CJS/ESM; dynamic import works for both).
 // Initialized before app.listen so all requests see a ready matcher.
 let profanityMatcher = null;
+// Whitelisted substrings the obscenity matcher would otherwise flag inside
+// legit handles. The englishDataset already covers common English false-
+// positives (analyst, banal, canal, …); these are the non-English ones we've
+// seen in real submissions. A whitelist entry must fully cover the matched
+// region — obscenity drops overlap-only suppressions.
+//   - "juanal" — Spanish "Juana la …" / "Juan Al…" — dataset matches "uanal"
+const PROFANITY_WHITELIST = ['juanal'];
 async function initProfanityFilter() {
   const { RegExpMatcher, englishDataset, englishRecommendedTransformers } = await import('obscenity');
+  const built = englishDataset.build();
   profanityMatcher = new RegExpMatcher({
-    ...englishDataset.build(),
+    ...built,
     ...englishRecommendedTransformers,
+    whitelistedTerms: [...(built.whitelistedTerms ?? []), ...PROFANITY_WHITELIST],
   });
 }
 
