@@ -162,6 +162,32 @@
       border: 1px solid rgba(128,195,67,0.3);
       border-radius: 4px;
     }
+    .mobile-notice {
+      display: none;
+    }
+    @media (max-width: 640px) {
+      .mobile-notice {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        padding: 10px 16px;
+        background: rgba(255, 180, 60, 0.12);
+        border-bottom: 1px solid rgba(255, 180, 60, 0.35);
+        font: 12px/1.35 system-ui, sans-serif;
+        color: var(--ink);
+        text-align: center;
+      }
+      .mobile-notice .icon {
+        font-size: 16px;
+        line-height: 1;
+        flex-shrink: 0;
+      }
+      .mobile-notice strong {
+        color: #ffb43c;
+        font-weight: 700;
+      }
+    }
     a.prize-teaser {
       display: flex;
       align-items: center;
@@ -373,6 +399,11 @@
     <a class="cta frogman" href="https://github.com/mwtcmi/frogman" target="_blank" rel="noopener">Frogman</a>
     <a class="cta merch" href="https://merch.sangoma.com/unisex-men-s-t-shirts" target="_blank" rel="noopener">Merch</a>
   </header>
+
+  <div class="mobile-notice">
+    <span class="icon">📱</span>
+    <span><strong>Best on a desktop browser</strong> — Tango hops with the arrow keys, and the playfield is sized for a full-window view.</span>
+  </div>
 
   <a class="prize-teaser" href="#prizes">
     <span class="trophy">🏆</span>
