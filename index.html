@@ -162,10 +162,59 @@
       border: 1px solid rgba(128,195,67,0.3);
       border-radius: 4px;
     }
+    a.prize-teaser {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      padding: 10px 20px;
+      background: linear-gradient(90deg, rgba(128,195,67,0.10) 0%, rgba(255,210,74,0.10) 50%, rgba(128,195,67,0.10) 100%);
+      border-bottom: 1px solid rgba(128,195,67,0.3);
+      color: var(--ink);
+      text-decoration: none;
+      font: 13px/1.2 system-ui, sans-serif;
+      letter-spacing: 0.5px;
+      transition: background 0.15s;
+    }
+    a.prize-teaser:hover {
+      background: linear-gradient(90deg, rgba(128,195,67,0.18) 0%, rgba(255,210,74,0.18) 50%, rgba(128,195,67,0.18) 100%);
+    }
+    a.prize-teaser .trophy {
+      font-size: 16px;
+      line-height: 1;
+    }
+    a.prize-teaser strong {
+      color: var(--freepbx);
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-size: 12px;
+    }
+    a.prize-teaser .grand {
+      color: #ffd24a;
+      font-weight: 700;
+    }
+    a.prize-teaser .sep {
+      color: var(--muted);
+      opacity: 0.6;
+    }
+    a.prize-teaser .jump {
+      color: var(--accent);
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    @media (max-width: 640px) {
+      a.prize-teaser { flex-wrap: wrap; gap: 6px 10px; padding: 8px 14px; font-size: 12px; }
+      a.prize-teaser .sep { display: none; }
+    }
     section.prizes {
       max-width: 1200px;
       margin: 16px auto 0;
       padding: 28px 24px 36px;
+      scroll-margin-top: 16px;
     }
     section.prizes .prizes-head {
       display: flex;
@@ -325,6 +374,15 @@
     <a class="cta merch" href="https://merch.sangoma.com/unisex-men-s-t-shirts" target="_blank" rel="noopener">Merch</a>
   </header>
 
+  <a class="prize-teaser" href="#prizes">
+    <span class="trophy">🏆</span>
+    <strong>Play for the prize pool</strong>
+    <span class="sep">·</span>
+    <span><span class="grand">$3,449</span> grand prize + 3 more bundles</span>
+    <span class="sep">·</span>
+    <span class="jump">See prizes ↓</span>
+  </a>
+
   <main>
     <aside class="side">
       <h2>Mission</h2>
@@ -352,11 +410,11 @@
     </aside>
   </main>
 
-  <section class="prizes">
+  <section class="prizes" id="prizes">
     <div class="prizes-head">
       <div class="title">
         <h2>Prizes</h2>
-        <p>Climb the leaderboard. Win a FreePBX commercial module bundle + Sangoma t-shirt.</p>
+        <p>Climb the leaderboard. Win a FreePBX commercial module bundle + FreePBX t-shirt.</p>
       </div>
       <a href="https://www.freepbx.org/add-ons/" target="_blank" rel="noopener">Bundle details →</a>
     </div>
@@ -365,7 +423,7 @@
         <span class="rank">1st — Grand Prize</span>
         <img src="images/freepbx/everything-bundle-1.png" alt="FreePBX Everything Bundle">
         <h3>Everything Bundle</h3>
-        <p class="meta">25-Year License + Sangoma T-Shirt</p>
+        <p class="meta">25-Year License + FreePBX T-Shirt</p>
         <div class="value">$3,449</div>
         <div class="value-sub">Retail value</div>
       </div>
@@ -373,7 +431,7 @@
         <span class="rank">2nd</span>
         <img src="images/freepbx/call-center-bundle-1.png" alt="FreePBX Call Center Bundle">
         <h3>Call Center Bundle</h3>
-        <p class="meta">25-Year License + Sangoma T-Shirt</p>
+        <p class="meta">25-Year License + FreePBX T-Shirt</p>
         <div class="value">$2,299</div>
         <div class="value-sub">Retail value</div>
       </div>
@@ -381,7 +439,7 @@
         <span class="rank">3rd</span>
         <img src="images/freepbx/advanced-bundle-1.png" alt="FreePBX Advanced Bundle">
         <h3>Advanced Bundle</h3>
-        <p class="meta">25-Year License + Sangoma T-Shirt</p>
+        <p class="meta">25-Year License + FreePBX T-Shirt</p>
         <div class="value">$1,149</div>
         <div class="value-sub">Retail value</div>
       </div>
@@ -389,7 +447,7 @@
         <span class="rank">4th</span>
         <img src="images/freepbx/starter-bundle-1.png" alt="FreePBX Starter Bundle">
         <h3>Starter Bundle</h3>
-        <p class="meta">25-Year License + Sangoma T-Shirt</p>
+        <p class="meta">25-Year License + FreePBX T-Shirt</p>
         <div class="value">$349</div>
         <div class="value-sub">Retail value</div>
       </div>
