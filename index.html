@@ -162,6 +162,143 @@
       border: 1px solid rgba(128,195,67,0.3);
       border-radius: 4px;
     }
+    section.prizes {
+      max-width: 1200px;
+      margin: 16px auto 0;
+      padding: 28px 24px 36px;
+    }
+    section.prizes .prizes-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px 24px;
+      margin-bottom: 22px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid #1a2342;
+    }
+    section.prizes .prizes-head .title {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    section.prizes h2 {
+      margin: 0;
+      font: 700 28px/1 "Arcade Classic", system-ui, sans-serif;
+      letter-spacing: 3px;
+      color: var(--freepbx);
+    }
+    section.prizes .prizes-head p {
+      margin: 0;
+      font: 14px/1.4 system-ui, sans-serif;
+      color: var(--muted);
+    }
+    section.prizes .prizes-head a {
+      font: 600 12px/1 system-ui, sans-serif;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--accent);
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    section.prizes .prizes-head a:hover { text-decoration: underline; }
+    .prize-grid {
+      display: grid;
+      grid-template-columns: 1.25fr 1fr 1fr 1fr;
+      gap: 16px;
+      align-items: stretch;
+    }
+    .prize {
+      position: relative;
+      background: var(--panel);
+      border: 1px solid #2a3654;
+      border-radius: 8px;
+      padding: 18px 14px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      transition: transform 0.15s, border-color 0.15s;
+    }
+    .prize:hover {
+      transform: translateY(-2px);
+      border-color: #3a4974;
+    }
+    .prize .rank {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      font: 700 12px/1 "Arcade Classic", system-ui, sans-serif;
+      letter-spacing: 2px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: var(--panel);
+      border: 2px solid currentColor;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .prize.first    { --rank-color: #ffd24a; }
+    .prize.second   { --rank-color: #c9d2dd; }
+    .prize.third    { --rank-color: #d99459; }
+    .prize.fourth   { --rank-color: var(--freepbx); }
+    .prize .rank { color: var(--rank-color); }
+
+    .prize.first {
+      background: linear-gradient(180deg, rgba(255,210,74,0.08) 0%, var(--panel) 60%);
+      border: 2px solid var(--rank-color);
+      box-shadow: 0 0 0 1px rgba(255,210,74,0.15), 0 8px 28px rgba(255,210,74,0.10);
+    }
+    .prize.first .rank {
+      background: var(--rank-color);
+      color: #2a1d00;
+      border-color: var(--rank-color);
+    }
+    .prize img {
+      width: 100%;
+      max-width: 180px;
+      height: auto;
+      margin: 8px 0 12px;
+      filter: drop-shadow(0 4px 10px rgba(0,0,0,0.4));
+    }
+    .prize.first img { max-width: 220px; }
+    .prize h3 {
+      margin: 0 0 6px;
+      font: 700 16px/1.2 system-ui, sans-serif;
+      color: var(--ink);
+    }
+    .prize.first h3 { font-size: 18px; }
+    .prize .meta {
+      margin: 0 0 12px;
+      font: 12px/1.3 system-ui, sans-serif;
+      color: var(--muted);
+      letter-spacing: 0.5px;
+    }
+    .prize .value {
+      margin-top: auto;
+      font: 700 20px/1 "Arcade Classic", system-ui, sans-serif;
+      letter-spacing: 2px;
+      color: var(--freepbx);
+    }
+    .prize.first .value { color: var(--rank-color); font-size: 24px; }
+    .prize .value-sub {
+      margin-top: 4px;
+      font: 10px/1 system-ui, sans-serif;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    @media (max-width: 900px) {
+      .prize-grid { grid-template-columns: 1fr 1fr; }
+      .prize.first { grid-column: 1 / -1; }
+      .prize.first img { max-width: 180px; }
+    }
+    @media (max-width: 520px) {
+      .prize-grid { grid-template-columns: 1fr; }
+      .prize.first { grid-column: auto; }
+      section.prizes { padding: 20px 16px 28px; }
+    }
     footer.brand {
       text-align: center;
       padding: 16px;
@@ -214,6 +351,50 @@
       <p style="margin-top:10px"><a href="https://github.com/mwtcmi/frogman" target="_blank" rel="noopener">See it on GitHub →</a></p>
     </aside>
   </main>
+
+  <section class="prizes">
+    <div class="prizes-head">
+      <div class="title">
+        <h2>Prizes</h2>
+        <p>Climb the leaderboard. Win a FreePBX commercial module bundle + Sangoma t-shirt.</p>
+      </div>
+      <a href="https://www.freepbx.org/add-ons/" target="_blank" rel="noopener">Bundle details →</a>
+    </div>
+    <div class="prize-grid">
+      <div class="prize first">
+        <span class="rank">1st — Grand Prize</span>
+        <img src="images/freepbx/everything-bundle-1.png" alt="FreePBX Everything Bundle">
+        <h3>Everything Bundle</h3>
+        <p class="meta">25-Year License + Sangoma T-Shirt</p>
+        <div class="value">$3,449</div>
+        <div class="value-sub">Retail value</div>
+      </div>
+      <div class="prize second">
+        <span class="rank">2nd</span>
+        <img src="images/freepbx/call-center-bundle-1.png" alt="FreePBX Call Center Bundle">
+        <h3>Call Center Bundle</h3>
+        <p class="meta">25-Year License + Sangoma T-Shirt</p>
+        <div class="value">$2,299</div>
+        <div class="value-sub">Retail value</div>
+      </div>
+      <div class="prize third">
+        <span class="rank">3rd</span>
+        <img src="images/freepbx/advanced-bundle-1.png" alt="FreePBX Advanced Bundle">
+        <h3>Advanced Bundle</h3>
+        <p class="meta">25-Year License + Sangoma T-Shirt</p>
+        <div class="value">$1,149</div>
+        <div class="value-sub">Retail value</div>
+      </div>
+      <div class="prize fourth">
+        <span class="rank">4th</span>
+        <img src="images/freepbx/starter-bundle-1.png" alt="FreePBX Starter Bundle">
+        <h3>Starter Bundle</h3>
+        <p class="meta">25-Year License + Sangoma T-Shirt</p>
+        <div class="value">$349</div>
+        <div class="value-sub">Retail value</div>
+      </div>
+    </div>
+  </section>
 
   <footer class="brand">
     Built on <a href="https://github.com/denodell/frogger" target="_blank" rel="noopener"><em>denodell/frogger</em></a> &nbsp;·&nbsp; <span class="sangoma">© Sangoma</span> · FreePBX is a registered trademark of Sangoma Technologies
