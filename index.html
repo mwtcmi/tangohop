@@ -152,6 +152,17 @@
     #canvas { z-index: 2; background: transparent; }
     #background-canvas { z-index: 1; }
     #score-panel { width: 480px; margin: 12px auto 0; }
+    @media (max-width: 640px) {
+      main {
+        grid-template-columns: 1fr;
+        justify-items: center;
+        padding: 16px;
+        gap: 16px;
+      }
+      .side { display: none; }
+      #stage { width: 100%; max-width: 480px; height: auto; aspect-ratio: 3 / 4; }
+      #score-panel { width: 100%; max-width: 480px; }
+    }
     #score {
       font: 700 12px/1.4 ui-monospace, Menlo, monospace;
       letter-spacing: 1.5px;
