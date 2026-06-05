@@ -1775,6 +1775,12 @@ Frogger.Character = (function(Frogger) {
             RIGHT_ARROW = 39,
             DOWN_ARROW = 40;
 
+        // Stop arrow keys from also scrolling the page now that the prizes
+        // section makes the page taller than the viewport.
+        if (event.keyCode >= LEFT_ARROW && event.keyCode <= DOWN_ARROW) {
+            event.preventDefault();
+        }
+
         // Execute the move() function, passing along the correct direction based on the
         // arrow key pressed. Ignore any other key presses
         if (event.keyCode === LEFT_ARROW) {
